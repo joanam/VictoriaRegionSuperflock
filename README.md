@@ -19,22 +19,22 @@ Remove sites with too high sequencing depth, indicative of paralogous regions co
 
 ### Reconstruct and plot phylogenies 
 
-Generate the nuclear phylogeny
+* Generate the nuclear phylogeny
 [BashPipelines/01_iqtree2.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/01_iqtree2.sh)
 
-for file conversion
+* for file conversion
 [BashPipelines/01_vcf2phylip.py](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/01_vcf2phylip.py)
 
 
-Plot nuclear phylogenies as fan trees for Fig 2 and Figure S3
+* Plot nuclear phylogenies as fan trees for Fig 2 and Figure S3
 [Rscripts/Fig2_FigS3_giantPhylogenies.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/Fig2_FigS3_giantPhylogenies.R)
 
 
-Generate the mitochondrial phylogeny
+* Generate the mitochondrial phylogeny
 [BashPipelines/01_iqtree2.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/01_iqtree2.sh)
 
 
-Make co-phyloplots of quartet tree vs iqtree2
+* Make co-phyloplots of quartet tree vs iqtree2
 [Rscripts/FigS15_cophyloplot_quartets_iqtree.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS15_cophyloplot_quartets_iqtree.R)
 
 
