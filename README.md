@@ -50,30 +50,30 @@ Remove sites with too high sequencing depth, indicative of paralogous regions co
 
 
 ### Admixture analyses
-[BashPipelines/Dstatistics.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Dstatistics.sh)
+* [BashPipelines/Dstatistics.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Dstatistics.sh)
 
-Example of Fbranch script, here for all LVRS and outgroups
+* Example of Fbranch script, here for all LVRS and outgroups: 
 [BashPipelines/03_fbranch.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/03_fbranch.sh)
 
-plotting f4 values of ecomorph pairs across lakes
+* Plotting f4 values of ecomorph pairs across lakes: 
 [Rscripts/Fig4B_f4values.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/Fig4B_f4values.R)
 
-Plotting Dstats of Upper Nile ancestry in the LVRS and Western Lakes in the Victoria Radiation
+* Plotting Dstats of Upper Nile ancestry in the LVRS and Western Lakes in the Victoria Radiation: 
 [RScripts/FigS5_FigS8_Dstats.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS5_FigS8_Dstats.R)
 
 
 
 ### Ecomorph associated alleles
 
-Get allele frequencies for each ecomorph and group:
+* Get allele frequencies for each ecomorph and group:
 
 [BashPipelines/Fig4_FigS11-S13_getFrqs.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Fig4_FigS11-S13_getFrqs.lsf)
 
-Get sites with at least 0.9 allele frequency difference between ecomorph and all other Victoria Radiation cichlids
+* Get sites with at least 0.9 allele frequency difference between ecomorph and all other Victoria Radiation cichlids
 
 [BashPipelines/Fig4_FigS11-S13_getDiffSites.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Fig4_FigS11-S13_getDiffSites.lsf)
 
-Plot them
+* Plot them
 
 [RScripts/FigS11-S13_alleleFrequencies_ecogroups.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/S13_alleleFrequencies_ecogroups.R)
 
@@ -89,13 +89,13 @@ Plot them
 
 Requires these scripts:
 
-[BashPipelines/FigS7_vcf2fineSTR.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_vcf2fineSTR.lsf)
-[BashPipelines/FigS7_runBeagle.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runBeagle.lsf)
+* [BashPipelines/FigS7_vcf2fineSTR.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_vcf2fineSTR.lsf)
+* [BashPipelines/FigS7_runBeagle.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runBeagle.lsf)
 
 
 ## Additional files:
 
-### Figures in vector format can be found [here](https://github.com/joanam/VictoriaRegionSuperflock/tree/main/Figures)
+* Figures in vector format can be found [here](https://github.com/joanam/VictoriaRegionSuperflock/tree/main/Figures)
 
-### The phylogenies can be found [here](https://github.com/joanam/VictoriaRegionSuperflock/tree/main/Phylogenies)
+* The phylogenies can be found [here](https://github.com/joanam/VictoriaRegionSuperflock/tree/main/Phylogenies)
 
