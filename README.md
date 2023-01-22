@@ -64,7 +64,7 @@ Compute genomic variation explained by ecomorph or genus across the Victoria Rad
 
 * Compute DFOIL to test the direction of gene flow between Har. squamipinnis (Edward piscivore) and Victoria piscivores: 
 [BashPipelines/FigS7_computeDfoil.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_computeDfoil.sh)
-and
+which requires 
 [BashPipelines/FigS7_runDfoil.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runDfoil.sh)
 
 * Compute fdM to test for correlations between ancestries (example of dwarf predators): [FigS14_fdM_dwarfPredators.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS14_fdM_dwarfPredators.sh)
