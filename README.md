@@ -2,12 +2,11 @@
 
 ## Initial data preparation
 LSF job submission script to align the reads to the reference genome:
-```sh
-BashPipelines/00_alignToBam.lsf
-```
+(BashPipelines/00_alignToBam.lsf)[https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_alignToBam.lsf]
+
 LSF job submission script to use GATK Haplotype Caller to get gvcf files of each sample:
 ```sh
-BashPipelines/00_runHaplotypeCaller.lsf
+(BashPipelines/00_runHaplotypeCaller.lsf)[https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_runHaplotypeCaller.lsf]
 ```
 LSF job submission script to get a vcf file per chromosome and apply some basic filters
 ```sh
