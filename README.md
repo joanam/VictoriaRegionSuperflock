@@ -50,7 +50,7 @@ Remove sites with too high sequencing depth, indicative of paralogous regions co
 
 
 ### Admixture analyses
-* [BashPipelines/Dstatistics.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Dstatistics.sh)
+* Compute D statistics with ADMIXTOOLS: [BashPipelines/Dstatistics.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Dstatistics.sh)
 
 * Example of Fbranch script, here for all LVRS and outgroups: 
 [BashPipelines/03_fbranch.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/03_fbranch.sh)
@@ -66,20 +66,24 @@ Remove sites with too high sequencing depth, indicative of paralogous regions co
 ### Ecomorph associated alleles
 
 * Get allele frequencies for each ecomorph and group:
-
 [BashPipelines/Fig4_FigS11-S13_getFrqs.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Fig4_FigS11-S13_getFrqs.lsf)
 
-* Get sites with at least 0.9 allele frequency difference between ecomorph and all other Victoria Radiation cichlids
-
+* Get sites with at least 0.9 allele frequency difference between ecomorph and all other Victoria Radiation cichlids: 
 [BashPipelines/Fig4_FigS11-S13_getDiffSites.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Fig4_FigS11-S13_getDiffSites.lsf)
 
-* Plot them
-
+* Plot them: 
 [RScripts/FigS11-S13_alleleFrequencies_ecogroups.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/S13_alleleFrequencies_ecogroups.R)
 
 
 
 ### DXY between allopatric and sympatric piscivores and paedophages
+* Get the file with all sites of piscivores and paedophages (one sample per species):
+[FigS10_runGenotypeGVCF.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS10_runGenotypeGVCF.lsf)
+
+* Compute DXY: 
+[FigS10_computeDXY.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS10_computeDXY.sh)
+
+* Plot DXY: 
 [RScripts/FigS10_dxy_sympatric_vs_allopatric.pdf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS10_dxy_sympatric_vs_allopatric.pdf)
 
 
@@ -91,6 +95,7 @@ Requires these scripts:
 
 * [BashPipelines/FigS7_vcf2fineSTR.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_vcf2fineSTR.lsf)
 * [BashPipelines/FigS7_runBeagle.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runBeagle.lsf)
+* [RScripts/FigS7_addRecombRates.r](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS7_addRecombRates.R)
 
 
 ## Additional files:
