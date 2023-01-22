@@ -11,7 +11,7 @@
 ### LSF job submission script to get a vcf file per chromosome and apply some basic filters
 [BashPipelines/00_runGenotypeGVCF_filter.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_runGenotypeGVCF_filter.sh)
 
-Remove sites with too high sequencing depth, indicative of paralogous regions collapsed in the reference
+Remove sites with too high sequencing depth, indicative of paralogous regions collapsed in the reference:
 [BashPipelines/00_removeTooHighDepthSites.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_removeTooHighDepthSites.sh)
 
 
@@ -40,11 +40,12 @@ Remove sites with too high sequencing depth, indicative of paralogous regions co
 
 
 ### Multidimensional Scaling (MDS) plots
-[Rscripts/Fig1_FigS4_FigS9_MDS.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/Fig1_FigS4_FigS9_MDS.R)
+Compute MDS with different combinations of individuals: [Rscripts/Fig1_FigS4_FigS9_MDS.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/Fig1_FigS4_FigS9_MDS.R)
 
 
 
-### AMOVA: genomic variation explained by ecomorph or genus across the Victoria Radiation
+### AMOVA
+Compute genomic variation explained by ecomorph or genus across the Victoria Radiation: 
 [BashPipelines/02_amova.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/02_amova.sh)
 
 
@@ -89,7 +90,8 @@ Remove sites with too high sequencing depth, indicative of paralogous regions co
 
 
 ### FineSTRUCTURE
-[BashPipelines/FigS7_runFineStructure.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runFineStructure.sh)
+
+Run fineSTRUCTURE: [BashPipelines/FigS7_runFineStructure.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runFineStructure.sh)
 
 Requires these scripts:
 
