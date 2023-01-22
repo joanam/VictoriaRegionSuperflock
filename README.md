@@ -62,6 +62,10 @@ Compute genomic variation explained by ecomorph or genus across the Victoria Rad
 * Plotting Dstats of Upper Nile ancestry in the LVRS and Western Lakes in the Victoria Radiation: 
 [RScripts/FigS5_FigS8_Dstats.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS5_FigS8_Dstats.R)
 
+* Compute DFOIL to test the direction of gene flow between Har. squamipinnis (Edward piscivore) and Victoria piscivores: 
+[BashPipelines/FigS7_computeDfoil.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_computeDfoil.sh)
+and
+[BashPipelines/FigS7_runDfoil.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runDfoil.sh)
 
 
 ### Ecomorph associated alleles
