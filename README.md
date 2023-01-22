@@ -1,40 +1,46 @@
 # Code, data and vectorised figures associated with the publication on the evolutionary origin of the Lake Victoria cichlid radiation.
 
 ## Initial data preparation
-LSF job submission script to align the reads to the reference genome:
+# LSF job submission script to align the reads to the reference genome:
 [BashPipelines/00_alignToBam.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_alignToBam.lsf)
 
-LSF job submission script to use GATK Haplotype Caller to get gvcf files of each sample:
+# LSF job submission script to use GATK Haplotype Caller to get gvcf files of each sample:
 [BashPipelines/00_runHaplotypeCaller.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_runHaplotypeCaller.lsf)
 
-LSF job submission script to get a vcf file per chromosome and apply some basic filters
+# LSF job submission script to get a vcf file per chromosome and apply some basic filters
 [BashPipelines/00_runGenotypeGVCF_filter.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_runGenotypeGVCF_filter.sh)
+
 Remove sites with too high sequencing depth, indicative of paralogous regions collapsed in the reference
 [BashPipelines/00_removeTooHighDepthSites.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_removeTooHighDepthSites.sh)
 
 
 ## Analyses
-Reconstruct and plot phylogenies 
+
+# Reconstruct and plot phylogenies 
 
 Generate the nuclear phylogeny
 [BashPipelines/01_iqtree2.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/01_iqtree2.sh)
+
 for file conversion
 [BashPipelines/01_vcf2phylip.py](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/01_vcf2phylip.py)
+
 
 Plot nuclear phylogenies as fan trees for Fig 2 and Figure S3
 [Rscripts/Fig2_FigS3_giantPhylogenies.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/Fig2_FigS3_giantPhylogenies.R)
 
+
 Generate the mitochondrial phylogeny
 [BashPipelines/01_iqtree2.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/01_iqtree2.sh)
+
 
 Make co-phyloplots of quartet tree vs iqtree2
 [Rscripts/FigS15_cophyloplot_quartets_iqtree.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS15_cophyloplot_quartets_iqtree.R)
 
 
-Multidimensional Scaling (MDS) plots
+# Multidimensional Scaling (MDS) plots
 [Rscripts/Fig1_FigS4_FigS9_MDS.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/Fig1_FigS4_FigS9_MDS.R)
 
-AMOVA: genomic variation explained by ecomorph or genus across the Victoria Radiation
+# AMOVA: genomic variation explained by ecomorph or genus across the Victoria Radiation
 ```sh
 [BashPipelines/02_amova.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/02_amova.sh)
 ```
