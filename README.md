@@ -1,4 +1,5 @@
-# Code, data and vectorised figures associated with the publication on the evolutionary origin of the Lake Victoria cichlid radiation.
+# Code, data and vectorised figures associated with the publication on the evolutionary origin of the Lake Victoria cichlid radiation
+
 
 ## Initial data preparation
 ### LSF job submission script to align the reads to the reference genome:
@@ -37,11 +38,15 @@ Make co-phyloplots of quartet tree vs iqtree2
 [Rscripts/FigS15_cophyloplot_quartets_iqtree.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS15_cophyloplot_quartets_iqtree.R)
 
 
+
 ### Multidimensional Scaling (MDS) plots
 [Rscripts/Fig1_FigS4_FigS9_MDS.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/Fig1_FigS4_FigS9_MDS.R)
 
+
+
 ### AMOVA: genomic variation explained by ecomorph or genus across the Victoria Radiation
 [BashPipelines/02_amova.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/02_amova.sh)
+
 
 
 ### Admixture analyses
@@ -57,25 +62,33 @@ Plotting Dstats of Upper Nile ancestry in the LVRS and Western Lakes in the Vict
 [RScripts/FigS5_FigS8_Dstats.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS5_FigS8_Dstats.R)
 
 
+
 ### Ecomorph associated alleles
 
 Get allele frequencies for each ecomorph and group:
+
 [BashPipelines/Fig4_FigS11-S13_getFrqs.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Fig4_FigS11-S13_getFrqs.lsf)
 
 Get sites with at least 0.9 allele frequency difference between ecomorph and all other Victoria Radiation cichlids
+
 [BashPipelines/Fig4_FigS11-S13_getDiffSites.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Fig4_FigS11-S13_getDiffSites.lsf)
 
 Plot them
+
 [RScripts/FigS11-S13_alleleFrequencies_ecogroups.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/S13_alleleFrequencies_ecogroups.R)
+
 
 
 ### DXY between allopatric and sympatric piscivores and paedophages
 [RScripts/FigS10_dxy_sympatric_vs_allopatric.pdf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS10_dxy_sympatric_vs_allopatric.pdf)
 
+
+
 ### FineSTRUCTURE
 [BashPipelines/FigS7_runFineStructure.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runFineStructure.sh)
 
 Requires these scripts:
+
 [BashPipelines/FigS7_vcf2fineSTR.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_vcf2fineSTR.lsf)
 [BashPipelines/FigS7_runBeagle.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runBeagle.lsf)
 
