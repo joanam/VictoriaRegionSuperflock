@@ -2,16 +2,16 @@
 
 
 ## Initial data preparation
-### LSF job submission script to align the reads to the reference genome:
+* LSF job submission script to align the reads to the reference genome:
 [BashPipelines/00_alignToBam.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_alignToBam.lsf)
 
-### LSF job submission script to use GATK Haplotype Caller to get gvcf files of each sample:
+* LSF job submission script to use GATK Haplotype Caller to get gvcf files of each sample:
 [BashPipelines/00_runHaplotypeCaller.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_runHaplotypeCaller.lsf)
 
-### LSF job submission script to get a vcf file per chromosome and apply some basic filters:
+* LSF job submission script to get a vcf file per chromosome and apply some basic filters:
 [BashPipelines/00_runGenotypeGVCF_filter.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_runGenotypeGVCF_filter.sh)
 
-Remove sites with too high sequencing depth, indicative of paralogous regions collapsed in the reference:
+* Remove sites with too high sequencing depth, indicative of paralogous regions collapsed in the reference:
 [BashPipelines/00_removeTooHighDepthSites.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/00_removeTooHighDepthSites.sh)
 
 
