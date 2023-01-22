@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#BSUB -J "vcf[2-22]%22"
+#BSUB -n 4
+#BSUB -W 24:00
+#BSUB -o log.%J.%I
+#BSUB -e err.%J.%I
+#BSUB -R rusage[mem=3500]
+
+module load gcc/4.8.2 gdc java/1.8.0_73 gatk/3.5
+
+chr="chr"${LSB_JOBINDEX}
+ref="/cluster/work/gdc/shared/p500/ref-genome/puncross.gapsEstimated.fasta"
+
+samples=""
+for i in `cat piscivores paedophages`
+do
+ samples=$samples"-V "/cluster/work/gdc/shared/p500/victoriaGenomes/gvcf/$i".g.vcf.gz "
+done
+
+java -Xmx16000M -Xms5000M \
+  -jar /cluster/apps/gatk/3.5/x86_64/GenomeAnalysisTK.jar \
+    -T GenotypeGVCFs $samples -allSites \
+    -R $ref -nt 4 -L $chr \
+    -o /cluster/scratch/meierjo/vcf/piscivores_paedophages_VictoriaKyoga.$chr.vcf.gz \
+    2>&1 | tee GenotypeVCF.stdout.stderr.txt
+
+echo "vcf file created"
+
+module load gcc/4.8.2 gdc perl/5.18.4 zlib/1.2.8 vcftools/0.1.16
+
+vcftools --gzvcf /cluster/scratch/meierjo/vcf/piscivores_paedophages_VictoriaKyoga.$chr.vcf.gz \
+ --max-missing 0.5 --recode --minDP 5 --stdout \
+ --exclude-positions /cluster/work/gdc/shared/p500/victoriaGenomes/masks/puncross.3masks.bed.gz | \
+ bgzip > /cluster/scratch/meierjo/vcf/piscivores_paedophages_VictoriaKyoga.$chr.max0.5N.minDP5.vcf.gz
+
+tabix /cluster/scratch/meierjo/vcf/piscivores_paedophages_VictoriaKyoga.$chr.max0.5N.minDP5.vcf.gz
+
+echo "vcf file filtered"
+
+cp /cluster/scratch/meierjo/vcf/piscivores_paedophages_VictoriaKyoga.$chr.max0.5N.minDP5.vcf.gz* \
+ /cluster/work/gdc/shared/p500/victoriaGenomes/LVRS/newLVRS/dxy_Vic-Kyo/
