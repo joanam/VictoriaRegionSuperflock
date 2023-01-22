@@ -92,3 +92,8 @@ Requires these scripts:
 [BashPipelines/FigS7_vcf2fineSTR.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_vcf2fineSTR.lsf)
 [BashPipelines/FigS7_runBeagle.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runBeagle.lsf)
 
+
+## Figures in vector format can be found [here](https://github.com/joanam/VictoriaRegionSuperflock/tree/main/Figures)
+
+## The phylogenies can be found [here](https://github.com/joanam/VictoriaRegionSuperflock/tree/main/Phylogenies)
+
