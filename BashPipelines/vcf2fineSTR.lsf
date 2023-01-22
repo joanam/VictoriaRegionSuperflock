@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#BSUB -J "fineSTR[10-10]%22"
+#BSUB -R "rusage[mem=1000]"
+#BSUB -o log.fs.%J.%I
+#BSUB -e err.fs.%J.%I
+#BSUB -n 1
+#BSUB -W 24:00
+
+i=$LSB_JOBINDEX
+
+linkageMap=/cluster/work/gdc/shared/p500/ref-genome/puncross.gapsEstimated.lifted.pruned.bed
+
+file=ecologyGroupsLVRS.chr$i.SNPs.phased
+
+module load r
+
+# Extract the chromosome (in case file is of all chromosomes)
+# vcftools15 --gzvcf $file.vcf.gz --chr chr$i --recode --stdout | gzip > $file.chr$i.vcf.gz
+# file=$file.chr$i
+
+# Make the recombination file
+makeRecombMap4fineSTRUCTURE.sh $file.vcf.gz $linkageMap
+
+# Start the chr finestructure phase with the number of haploid inds, sites and the positions of the sites
+# first line=number of haploid inds, second line=number of sites, third line=P SNPs
+hnind=`zgrep "^#CH"  $file.vcf.gz | awk '{print (NF-9)*2}'`
+echo $hnind > $file.fineSTRphase
+echo `grep -v "^#" <(zcat $file.vcf.gz) -c` >> $file.fineSTRphase
+echo "P " | tr -d '\n' >>  $file.fineSTRphase
+cut -d" " -f 1 $file.recomb |  sed -e ':a;N;$!ba;s/\n/ /g' -e 's/start.pos //g' >> $file.fineSTRphase
+
+# Add the genotype information for each individual:
+dnind=`echo $hnind / 2 | bc`
+convertIndsFineSTR.sh 1 $dnind $file 1
+
+# add the data to the chr finestructure phase file
+cat $file.fineSTRphase.1 >> $file.fineSTRphase
+rm $file.fineSTRphase.1

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#BSUB -J "Ctgeno[19-22]%3"
+#BSUB -R "rusage[mem=1200]"
+#BSUB -n 1
+#BSUB -W 120:00
+#BSUB -o log.%J.%I
+#BSUB -e err.%J.%I
+
+file=CTfish.minDP5.max0.5N
+
+module load python/2.7.6
+
+# Needs very little memory
+python parseVCF.py -i $file.chr$LSB_JOBINDEX.vcf.gz --minQual 30  | \
+  gzip > $file.minQ30.chr$LSB_JOBINDEX.geno.gz
+
+

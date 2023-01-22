@@ -1,0 +1,299 @@
+#!/bin/bash
+
+#BSUB -J "getDiffFrqs"
+#BSUB -n 1
+#BSUB -W 12:00
+#BSUB -o log.%J.%I
+#BSUB -e err.%J.%I
+#BSUB -R "rusage[mem=1000]"
+
+module load gcc/4.8.2 gdc perl/5.18.4 zlib/1.2.8 vcftools/0.1.16
+
+# Function to polarize and get sites with at least 0.9 difference
+function diff0.9 {
+
+  file=$1
+
+  # polarize alleles according to presence in LV piscivores (pisc=1, nonpisc=0)
+  awk 'BEGIN {OFS = "\t"}{if($4<0.5 && $1!="CHROM"){for (i=4;i<=NF;i+=2) $i=1-$i}; print}' \
+    $file.freq > $file.pol.freq
+
+  # Get positions where the ecogroup differs strongly from other Victoria-Kyoga cichlids
+  head -1 $file.pol.freq > $file.0.9diff.sites
+  ecoN=`cut -f 3 $file.pol.freq | tail -n+2 | head -10000 | sort | tail -n1`
+  otherN=`cut -f 5 $file.pol.freq | tail -n+2 | sort | head -10000 | tail -n1`
+  awk -v ecoN=$ecoN -v otherN=$otherN '{if($3>=ecoN/2 && $5>=otherN/2) if($4-$6>=0.9) print $0}' $file.pol.freq >> $file.0.9diff.sites
+}
+
+
+# Function to get sites with the same allele frequency range as the ecomorph-associated sites as a control dataset
+function matchingAlleleFrq {
+
+  file=$1
+
+  # polarize alleles according to presence in LV (assuming the last column contains the Victoria alleles)
+  awk 'BEGIN {OFS = "\t"}{if($NF>0.5 && $1!="CHROM"){for (i=4;i<=NF;i+=2) $i=1-$i}; print}' \
+    $file.freq > $file.matchFreq.pol.freq
+
+  # Get range of allele frequencies of 0.9diff sites in LV
+  min=`awk 'BEGIN{min=1}{if($NF<min && NR>1) min=$NF}END{print min}' $file.0.9diff.sites`
+  max=`awk 'BEGIN{max=0}{if($NF>max && NR>1) max=$NF}END{print max}' $file.0.9diff.sites`
+
+  # Get positions where the allele frequency is in the range of the ecogroup-associated SNPs
+  head -1 $file.matchFreq.pol.freq > $file.matchAllFrq.sites
+  ecoN=`cut -f 3 $file.matchFreq.pol.freq | tail -n+2 | head -10000 | sort | tail -n1`
+  otherN=`cut -f 5 $file.matchFreq.pol.freq | tail -n+2 | sort | head -10000 | tail -n1`
+  awk -v ecoN=$ecoN -v otherN=$otherN -v min=$min -v max=$max \
+     '{if($3>=ecoN/2 && $5>=otherN/2 && NR>1) if($NF>min && $NF<max) print $0}' $file.matchFreq.pol.freq >> $file.matchAllFrq.sites
+
+}
+
+
+# Combine chromosomes (for most groups already done)
+for group in Victoria_epilithic_algae_scraper_Neo Victoria_dwarfPredator
+do
+ group="Victoria_non_"$group
+ echo -e "CHROM\tPOS\tN_ALLELES\tN_"$group"\tFrq_"$group > $group.chr1-22.freq
+ for chr in {1..22};
+ do
+  grep -v "^CHROM" $group.chr$chr.frq >> $group.chr1-22.freq
+ #grep -v "^CHROM" freq_$group/$group.chr$chr.frq >> $group.chr1-22.freq
+
+ done
+done
+
+
+# Combine freq datasets of different groups:
+
+file=LV.Neo_epilithic_algae_scraper.chr1-22
+paste <(cut -f 1-2,4-5 Victoria_epilithic_algae_scraper_Neo.chr1-22.freq) <(cut -f 4-5 Victoria_non_epilithic_algae_scraper.noNeoRelatives.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 Victoria_non_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Albert_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Albert_non_epilithic_algae_scraper.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+ <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_epilithic_algae_scraper_Mm.chr1-22.freq) \
+ <(cut -f 4-5 Victoria_epilithic_algae_scraper_Ml.chr1-22.freq) <(cut -f 4-5 Kivu_epilithic_algae_scraper.chr1-22.freq) \
+ <(cut -f 4-5 Kivu_non_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+ <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+
+
+file=LV.dwarf_predators.chr1-22  
+paste <(cut -f 1-2,4-5 Victoria_dwarfPredator.chr1-22.freq) <(cut -f 4-5 Victoria_nonZooplanktivore_nonPiscivore.chr1-22.freq) \
+<(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+<(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_Y.chr1-22.freq) <(cut -f 4-5 Victoria_piscivore.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+
+# get sites with min 0.9 allele frequency differences
+for eco in Neo_epilithic_algae_scraper dwarf_predators
+do
+ diff0.9 LV.${eco}.chr1-22
+ matchingAlleleFrq LV.${eco}.chr1-22
+done
+
+
+exit
+
+# Other groups already run previously:
+
+file=LV.epilithic_algae_scraper_Mbipia.chr1-22
+paste <(cut -f 1-2,4-5 Victoria_epilithic_algae_scraper_Mbipia.chr1-22.freq) <(cut -f 4-5 Victoria_non_epilithic_algae_scraper.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 Albert_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Albert_non_epilithic_algae_scraper.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_epilithic_algae_scraper_Mm.chr1-22.freq) \
+<(cut -f 4-5 Victoria_epilithic_algae_scraper_Ml.chr1-22.freq) <(cut -f 4-5 Kivu_epilithic_algae_scraper.chr1-22.freq) \
+<(cut -f 4-5 Kivu_non_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+
+
+#file=LV.insectivore_rockpicker.chr1-22
+#paste  <(cut -f 1-2,4-5 Victoria_insectivore_rockpicker.chr1-22.freq) <(cut -f 4-5 Victoria_non_insectivore.chr1-22.freq) <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+#  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+#  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+#file=LV.Neo_rockpicker.chr1-22
+#paste <(cut -f 1-2,4-5 Victoria_Neo_rockpicker.chr1-22.freq) <(cut -f 4-5 Victoria_non_epilithic_algae_scraper.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+# <(cut -f 4-5 Albert_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Albert_non_epilithic_algae_scraper.chr1-22.freq) \
+# <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+#<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_epilithic_algae_scraper_Mm.chr1-22.freq) \
+#<(cut -f 4-5 Victoria_epilithic_algae_scraper_Ml.chr1-22.freq) <(cut -f 4-5 Kivu_epilithic_algae_scraper.chr1-22.freq) \
+#<(cut -f 4-5 Kivu_non_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+#<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.piscivore.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_piscivore.chr1-22.freq) <(cut -f 4-5 Victoria_non_piscivore.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq)  <(cut -f 4-5 Victoria_Burigi.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_Ikimba.chr1-22.freq) <(cut -f 4-5 Victoria_Nabugabo.chr1-22.freq) \
+  <(cut -f 4-5 Kagera_piscivore.chr1-22.freq) <(cut -f 4-5 Kagera_nonpiscivore.chr1-22.freq) \
+  <(cut -f 4-5 Kivu_piscivore.chr1-22.freq) <(cut -f 4-5 Kivu_nonpiscivore.chr1-22.freq) \
+  <(cut -f 4-5 Albert_piscivore.chr1-22.freq) <(cut -f 4-5 Albert_nonpiscivore.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_BurIkimba.chr1-22.freq) <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) \
+  <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) \
+  <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+
+file=LV.insectivore_Lith.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_insectivore_Lith.chr1-22.freq) <(cut -f 4-5 
+Victoria_non_insectivore.chr1-22.freq) <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.insectivore_Paral.chr1-22  # used
+paste  <(cut -f 1-2,4-5 Victoria_insectivore_Paral.chr1-22.freq) <(cut -f 4-5 Victoria_non_insectivore.chr1-22.freq) <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+file=LV.crabs_eater.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_crabs.chr1-22.freq) <(cut -f 4-5 Victoria_non_crab-eater.chr1-22.freq) \
+<(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+<(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+
+file=LV.epilithic_algae_scraper_Ml.chr1-22 # used
+paste <(cut -f 1-2,4-5 Victoria_epilithic_algae_scraper_Ml.chr1-22.freq) <(cut -f 4-5 Victoria_non_epilithic_algae_scraper.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 Albert_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Albert_non_epilithic_algae_scraper.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_epilithic_algae_scraper_Mm.chr1-22.freq) \
+<(cut -f 4-5 Victoria_epilithic_algae_scraper_Ml.chr1-22.freq) <(cut -f 4-5 Kivu_epilithic_algae_scraper.chr1-22.freq) \
+<(cut -f 4-5 Kivu_non_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.epilithic_algae_scraper_Mm.chr1-22 # used
+paste <(cut -f 1-2,4-5 Victoria_epilithic_algae_scraper_Mm.chr1-22.freq) <(cut -f 4-5 Victoria_non_epilithic_algae_scraper.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 Albert_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Albert_non_epilithic_algae_scraper.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_epilithic_algae_scraper_Mm.chr1-22.freq) \
+<(cut -f 4-5 Victoria_epilithic_algae_scraper_Ml.chr1-22.freq) <(cut -f 4-5 Kivu_epilithic_algae_scraper.chr1-22.freq) \
+<(cut -f 4-5 Kivu_non_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.epilithic_algae_scraper_Pshorsnsc.chr1-22  # perhaps used
+paste <(cut -f 1-2,4-5 Victoria_epilithic_algae_scraper_Pshorsnsc.chr1-22.freq) <(cut -f 4-5 Victoria_non_epilithic_algae_scraper.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 Albert_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Albert_non_epilithic_algae_scraper.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_epilithic_algae_scraper_Mm.chr1-22.freq) \
+<(cut -f 4-5 Victoria_epilithic_algae_scraper_Ml.chr1-22.freq) <(cut -f 4-5 Kivu_epilithic_algae_scraper.chr1-22.freq) \
+<(cut -f 4-5 Kivu_non_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+#file=LV.insectivore_Prokri.chr1-22 
+#paste  <(cut -f 1-2,4-5 Victoria_insectivore_Prokri.chr1-22.freq) <(cut -f 4-5 Victoria_non_insectivore.chr1-22.freq) <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+#  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+#  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+file=LV.insectivore_Pund.chr1-22  # used
+paste  <(cut -f 1-2,4-5 Victoria_insectivore_Pund.chr1-22.freq) <(cut -f 4-5 Victoria_non_insectivore.chr1-22.freq) <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+
+#file=LV.Paralabidochromis_chilotes_insect.chr1-22
+#paste  <(cut -f 1-2,4-5 Victoria_Paralabidochromis_chilotes_insect.chr1-22.freq) <(cut -f 4-5 Victoria_non_insectivore.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+#  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+#  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+file=LV.pharyngeal.crusher.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_pharyngeal_mollusc_crusher.chr1-22.freq) <(cut -f 4-5 Victoria_non_pharyngeal_mollusc_crusher.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+file=LV.detritivore_E2.chr1-22  #used
+paste  <(cut -f 1-2,4-5 Victoria_detritivore_E2.chr1-22.freq) <(cut -f 4-5 Victoria_non_detritivore.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+#file=LV.detritivore_E1.chr1-22  # too few sites
+#paste  <(cut -f 1-2,4-5 Victoria_detritivore_E1.chr1-22.freq) <(cut -f 4-5 Victoria_non_detritivore.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+#  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+#  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+file=LV.insectivore_E1Gau.chr1-22  # used
+paste  <(cut -f 1-2,4-5 Victoria_insectivore_E1Gau.chr1-22.freq) <(cut -f 4-5 Victoria_non_insectivore.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+#file=LV.Ptyochromis_sp_striped_rock_sheller_oral_sheller.chr1-22
+#paste  <(cut -f 1-2,4-5 Victoria_Ptyochromis_sp_striped_rock_sheller_oral_sheller.chr1-22.freq) <(cut -f 4-5 Victoria_non_oral_sheller.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+#  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+#  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+file=LV.epiphytic_algae_scraper_purYel.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_epiphytic_algae_scraper_purYel.chr1-22.freq) <(cut -f 4-5 Victoria_non_epiphytic_algae_scraper.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+   <(cut -f 4-5 Edward_epiphytic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Edward_non_epiphytic_algae_scraper.chr1-22.freq) \
+   <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq)  > $file.freq
+
+
+file=LV.epilithic_algae_scraper.chr1-22  # used (Neochromis)
+paste <(cut -f 1-2,4-5 Victoria_epilithic_algae_scraper_Neo.chr1-22.freq) <(cut -f 4-5 Victoria_non_epilithic_algae_scraper.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 Albert_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Albert_non_epilithic_algae_scraper.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_epilithic_algae_scraper_Mm.chr1-22.freq) \
+<(cut -f 4-5 Victoria_epilithic_algae_scraper_Ml.chr1-22.freq) <(cut -f 4-5 Kivu_epilithic_algae_scraper.chr1-22.freq) \
+<(cut -f 4-5 Kivu_non_epilithic_algae_scraper.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.zooplanktivore_Y.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_zooplanktivore_Y.chr1-22.freq) <(cut -f 4-5 Victoria_non_zooplanktivore.chr1-22.freq) \
+<(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+<(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.zooplanktivore_nyer.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_zooplanktivore_nyer.chr1-22.freq) <(cut -f 4-5 Victoria_non_zooplanktivore.chr1-22.freq) \
+<(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+<(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Victoria_zooplanktivore_az.chr1-22.freq) \
+<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.oral_crusher_Macro.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_oral_crusher_Macro.chr1-22.freq) <(cut -f 4-5 Victoria_non_oral_crusher.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.oral_sheller_Macro.chr1-22 # used
+paste <(cut -f 1-2,4-5 Victoria_oral_sheller_Macro.chr1-22.freq) <(cut -f 4-5 Victoria_non_oral_sheller.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+ <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.oral_sheller_plagiodon.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_oral_sheller_plagiodon.chr1-22.freq) <(cut -f 4-5 Victoria_non_oral_sheller.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+ <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+ <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+file=LV.paedophage.chr1-22  # used
+paste <(cut -f 1-2,4-5 Victoria_paedophage.chr1-22.freq) <(cut -f 4-5 Victoria_non_paedophage.chr1-22.freq)  <(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+  <(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) \
+  <(cut -f 4-5 albert.chr1-22.freq) <(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) \
+  <(cut -f 4-5 Victoria_BurIkimba.chr1-22.freq) <(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) \
+  <(cut -f 4-5 EdKi_paedophage.chr1-22.freq) <(cut -f 4-5 EdKi_nonpaedophage.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+#file=LV.crabeater.chr1-22
+#paste <(cut -f 1-2,4-5 Victoria_crabs.chr1-22.freq) <(cut -f 4-5 Victoria_non_crab-eater.chr1-22.freq) \
+#<(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+#<(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+#<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) \
+#<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+#file=LV.insectivore_dw.chr1-22 # too few sites
+#paste <(cut -f 1-2,4-5 Victoria_insectivore.dw.chr1-22.freq) <(cut -f 4-5 Victoria_non_insectivore.chr1-22.freq) \
+#<(cut -f 4-5 Victoria_Northern_generalists.chr1-22.freq) \
+#<(cut -f 4-5 edward.chr1-22.freq) <(cut -f 4-5 kivu.chr1-22.freq) <(cut -f 4-5 saka.chr1-22.freq) <(cut -f 4-5 albert.chr1-22.freq) \
+#<(cut -f 4-5 Victoria_insectivore_nubs.chr1-22.freq) \
+#<(cut -f 4-5 Nile.chr1-22.freq) <(cut -f 4-5 Congo.chr1-22.freq) <(cut -f 4-5 Victoria.chr1-22.freq) > $file.freq
+
+
+# get sites with certain allele frequency differences
+for eco in detritivore_E2 epilithic_algae_scraper epilithic_algae_scraper_Ml epilithic_algae_scraper_Mm epilithic_algae_scraper_Pshorsnsc \
+   epiphytic_algae_scraper_purYel oral_crusher_Macro oral_sheller_Macro oral_sheller_plagiodon pharyngeal.crusher zooplanktivore_Y \
+   zooplanktivore_nyer insectivore_E1Gau insectivore_Paral insectivore_Pund crabs_eater paedophage piscivore \
+   Neo_rockpicker insectivore_rockpicker epilithic_algae_scraper_Mbipia
+do
+ diff0.9 LV.${eco}.chr1-22 
+ matchingAlleleFrq LV.${eco}.chr1-22
+done

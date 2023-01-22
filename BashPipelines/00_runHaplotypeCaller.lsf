@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#BSUB -J "runHap[1-1]%1"
+#BSUB -R "rusage[mem=25000]"
+#BSUB -n 4
+#BSUB -W 120:00
+#BSUB -o log.%J.%I
+#BSUB -e err.%J.%I
+
+ind="SUD837"
+
+module load gcc/4.8.2 gdc java/1.8.0_73 gatk/3.5
+
+refgenome=/cluster/project/gdc/shared/p129/ref-genome/puncross.gapsEstimated.fasta
+gatk=/cluster/apps/gatk/3.5/x86_64/GenomeAnalysisTK.jar
+
+path=/cluster/project/gdc2/special/shared/p129/victoriaGenomes/
+
+cp $path"bamFiles/"${ind}.bowtie2.bam* ./
+
+java -Xmx100G -Xms10G \
+  -jar $gatk \
+    -T HaplotypeCaller -I ${ind}.bowtie2.bam -mbq 20 \
+    -R ${refgenome} -nct 4 --contamination_fraction_to_filter 0.1 \
+    -o ./${ind}.g.vcf.gz --pcr_indel_model NONE -ERC BP_Resolution \
+    -stand_call_conf 30.0 -stand_emit_conf 30.0 \
+    --variant_index_type LINEAR --variant_index_parameter 128000 \
+    2>&1 | tee HaplotypeCaller.${ind}.stdout.stderr.cont0.1.txt
+
+
+# If the g.vcf file was successfully created, bgzip it, move it to the group directory and delete the bam file to save space
+
+lastLine=`tail -n 1 HaplotypeCaller.${ind}.stdout.stderr.cont0.1.txt`
+
+if [[ $lastLine != *"ERROR"* ]] && [[ -s ${ind}.g.vcf.gz ]]
+then
+  tabix -p vcf $ind.g.vcf.gz
+  mv ${ind}.g.vcf* HaplotypeCaller.${ind}.stdout.stderr.cont0.1.txt $path"gvcf/"
+  rm ${ind}.bowtie2.bam*
+else
+  echo "something went wrong, "$ind".g.vcf not created"
+fi
+   

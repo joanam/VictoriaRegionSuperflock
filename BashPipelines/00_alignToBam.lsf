@@ -1,0 +1,61 @@
+#!/bin/bash
+
+#BSUB -J "alignToBam[1-7]%7"
+#BSUB -R "rusage[mem=13000]"
+#BSUB -n 2
+#BSUB -W 120:00
+#BSUB -o log.%J.%I
+#BSUB -e err.%J.%I
+
+# Download the fastq.gz files of an individual given as argument to the script
+# Merge all files of forward and all files of reverse reads to a single file without unzipping
+# The file individuals contains the list of individual codes to use
+
+ind=$(sed ''$LSB_JOBINDEX'q;d' individuals)
+
+# Check that the ind variable is not empty
+if [[ -n "${ind// }" ]]
+ then
+  echo "handling "$ind
+ else
+   ech$i"no ind given, exiting..."
+   exit 1
+fi
+
+# Load the required modules
+module load gcc/4.8.2 gdc perl/5.18.4 samtools/1.9 zlib/1.2.8 bowtie2/2.3.4.2 fastp/0.20.0
+
+# Change working directory to node scratch
+cd /scratch
+
+# Download and gunzip fastq files to node scratch
+# NEW: trim only polyG tails of NovaSeq reads (adapter trimming, quality and length filtering disabled)
+path="/cluster/work/gdc/shared/p500/victoriaGenomes/fastq/"
+fastp -w 8 -A -Q -L -h ${ind}.fastp.html -i ${path}${ind}.R1.fastq.gz -I ${path}${ind}.R2.fastq.gz \
+-o ${ind}.R1.fastq -O ${ind}.R2.fastq
+
+# Run Bowtie2
+bowtie2 \
+   -x /cluster/work/gdc/shared/p500/ref-genome/puncross.gapsEstimated \
+   -1 ${ind}.R1.fastq \
+   -2 ${ind}.R2.fastq \
+   --phred33 --local -p 4 -N 1 -t \
+   --rg-id ${ind} \
+   --rg "SM:"${ind} \
+   --rg "ID:"${ind} \
+   --rg "PL:ILLUMINA" \
+   --rg "PG:bowtie2" 2> $ind.bowtie2.log | samtools view -bS - > $ind.bowtie2.bam 
+
+
+# Inform about success of alignment and gzip the fastq files again
+lastline=`tail -n 1 ${ind}.bowtie2.log`
+if [[ $lastLine != *"ERR"* ]] && [[ -s ${ind}.bowtie2.bam ]]
+ then
+  echo "it worked!"
+  samtools sort -O 'bam' -T ./$ind ${ind}.bowtie2.bam > ${ind}.bowtie2.sorted.bam
+  mv ${ind}.bowtie2.sorted.bam ${ind}.bowtie2.bam
+  samtools index ${ind}.bowtie2.bam
+  mv ${ind}.bowtie2.* /cluster/work/gdc/shared/p500/victoriaGenomes/bamFiles/
+ else
+  echo "something went wrong, "${ind}.bowtie2.bam" could not be created"
+fi
