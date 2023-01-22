@@ -51,3 +51,28 @@ RScripts/FigS5_FigS8_Dstats.R # Plotting Dstats of Upper Nile ancestry in the LV
 
 ```
 
+Ecomorph associated alleles
+```sh
+# Get allele frequencies for each ecomorph and group:
+BashPipelines/Fig4_FigS11-S13_getFrqs.lsf
+
+# Get sites with at least 0.9 allele frequency difference between ecomorph and all other Victoria Radiation cichlids
+BashPipelines/Fig4_FigS11-S13_getDiffSites.lsf
+
+# Plot them
+RScripts/FigS11-S13_alleleFrequencies_ecogroups.R
+```
+
+DXY between allopatric and sympatric piscivores and paedophages
+```sh
+RScripts/FigS10_dxy_sympatric_vs_allopatric.pdf
+```
+
+FineSTRUCTURE
+```sh
+BashPipelines/FigS7_runFineStructure.sh
+
+# Requires these scripts:
+BashPipelines/FigS7_vcf2fineSTR.lsf
+BashPipelines/FigS7_runBeagle.lsf
+```
