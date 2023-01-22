@@ -67,6 +67,8 @@ Compute genomic variation explained by ecomorph or genus across the Victoria Rad
 and
 [BashPipelines/FigS7_runDfoil.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS7_runDfoil.sh)
 
+* Compute fdM to test for correlations between ancestries (example of dwarf predators): [FigS14_fdM_dwarfPredators.sh](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS14_fdM_dwarfPredators.sh)
+
 
 ### Ecomorph associated alleles
 
