@@ -1,0 +1,25 @@
+
+#!/bin/bash
+
+#BSUB -J "freq[1-22]%22"
+#BSUB -n 1
+#BSUB -W 12:00
+#BSUB -o log.%J.%I
+#BSUB -e err.%J.%I
+#BSUB -R "rusage[mem=3000]"
+
+module load gcc/4.8.2 gdc perl/5.18.4 zlib/1.2.8 vcftools/0.1.16
+
+path=/cluster/work/gdc/shared/p500/victoriaGenomes/vcf/
+
+CHR=chr${LSB_JOBINDEX}
+
+# Run vcftools to get allele frequencies for the groups of interest
+for group in Victoria_nonZooplanktivore_nonPiscivore Victoria_piscivore Victoria_non_piscivore Victoria_Northern_generalists Victoria_mitoXysti 
+do
+ mkdir -p /cluster/scratch/meierjo/eco/freq_$group
+ file=allGenomes.$CHR.SNPs.minDP6.minGQ20.max0.5N.3masks.vcf.gz
+ vcftools --max-alleles 2 --remove-indels --gzvcf ${path}${file} --keep $group.inds \
+  --freq2 --out /cluster/scratch/meierjo/eco/freq_$group/$group.$CHR
+ cp /cluster/scratch/meierjo/eco/freq_$group/$group.$CHR* ./
+done

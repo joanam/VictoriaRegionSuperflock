@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#BSUB -J "Beagle[1-5]%5"
+#BSUB -R "rusage[mem=10000]"
+#BSUB -n 10
+#BSUB -W 24:00
+#BSUB -o log.%J.%I
+#BSUB -e err.%J.%I
+
+chr=$LSB_JOBINDEX
+#file="dwarfAllies.minDP5.max0.5N.minQ30.minGQ15.mac2.chr"${chr}".max35meanSiteDepth.noHighHet"
+#file="makobe.chr${chr}.filtered.mac2.AN10"
+file="fullGenomes.chr${chr}.minDP5.minGQ15.max0.5N.max35meanSiteDepth.noIndels.vcf.gz"
+
+module load java r
+
+# Setting Beagle parameters:
+# 435,000 sites per Mb
+# overlap=3000 should be the number of markers in 2 x ibdcm (default 2 x 1.5 cM) -> 12000  (average of nSNPs / chr length in cM * 2)
+# window=50000 size should be the number of markers in 5 cM (at least 2 x overlap) -> 30000
+# ibdtrim should be the number of markers in 0.15 cM -> 
+# ibdlod=3.0 (default minimum lod score for reported IBD block)
+
+# dwarf allies: 7500 SNPs per cM
+# overlap=SNPs/cM*2=15000
+# window=SNPs/cM*5=37500
+# ibdtrim=SNPs/cM*0.15=1125
+
+# Generate a plink map file
+addRecombRates.r $file.vcf.gz /cluster/project/gdc/shared/p129/ref-genome/puncross.gapsEstimated.lifted.pruned.bed
+
+# Generate the Beagle and IBD files
+java -Xmx100G -Djava.io.tmpdir=./tempBeagle.2$chr \
+   -jar /cluster/project/gdc/shared/p129/bin/beagle.4.1.jar  \
+   overlap=15000 window=37500 map=$file.plink.map \
+   gt=$file.vcf.gz nthreads=10 niterations=10 ibd=true \
+   out=$file.phased ibdtrim=1125
