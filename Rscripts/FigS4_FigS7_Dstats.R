@@ -1,6 +1,6 @@
 ### D stats manuscript figures ####
 
-#### Fig. S5A Upper Nile ancestry  ####
+#### Fig. S4A Upper Nile ancestry  ####
 
 dstats<-read.table("D:/Dropbox/victoriaGenomes/Dstats/Dstats_UpperNile_Congo.results",header=T,sep="\t")
 dstats$low<-dstats$D-3*(dstats$D/dstats$z)
@@ -28,7 +28,7 @@ abline(h=0)
 legend("topleft",bty="n",pch=c(19,17),
        legend=c(as.expression(bquote(italic('T. pharyngalis'))),as.expression(bquote(italic('H. gracilior')))),title="P3",title.adj = 0.08)
 
-#### Fig. S5B: Upper Nile and Congolese ancestry blocks ####
+#### Fig. S4B: Upper Nile and Congolese ancestry blocks ####
 
 # size distribution using BBAA (LVRS like Congo) and BABA (LVRS like Nile) patterns
 
@@ -110,7 +110,7 @@ axis(1,b[-3+7*(1:(length(b)/7))],c("0-10","10-20","20-30","30-40","40-50",">60")
 
 
 
-#### Fig. S5D-I: Lake Correlations ############################
+#### Fig. 45D-I: Lake Correlations ############################
 
 # Correlation of BABA/(BBAA+BABA) proportion in 10 kb windows
 
@@ -287,7 +287,7 @@ grid.arrange(g1, g2, g3, g4, g5, g6, ncol=3)
 
 
 
-#### Fig. S8: Victoria vs Southern Generalists for Western Lakes introgression #####
+#### Fig. S7: Victoria vs Southern Generalists for Western Lakes introgression #####
 library(Hmisc)
 dstats<-read.table("D:/Dropbox/victoriaGenomes/Dstats/Dstats.nubila.results",header=T)
 
