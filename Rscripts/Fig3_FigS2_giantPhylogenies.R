@@ -393,7 +393,7 @@ sortedSampleInfo$genusCol[!(sortedSampleInfo$Lake=="Victoria"|sortedSampleInfo$L
 
 
 
-###### ggplot tree for Fig. 2 #######
+###### ggplot tree for Fig. 3 #######
 
 p<-ggtree(g2,layout="circular",size=0.2,aes(col=factor(color))) %<+% sortedSampleInfo + 
   scale_colour_manual(name = "Lake",
@@ -444,7 +444,7 @@ rotate_tree(p,-148)
 
 
 
-###### ggtree plot for Fig. S3 #######
+###### ggtree plot for Fig. S2 #######
 
 p<-ggtree(g2,layout="circular",size=0.2,aes(col=factor(color))) %<+% sortedSampleInfo + 
   scale_colour_manual(name = "Lake",
