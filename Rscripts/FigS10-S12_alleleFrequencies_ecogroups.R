@@ -1,5 +1,5 @@
 
-### Fig. S11: Piscivore-associated sites #####
+### Fig. S10: Piscivore-associated sites #####
 
 frq<-read.table("D:/Dropbox/victoriaGenomes/ecologicalGroups/LV.piscivore.chr1-22.0.9diff.sites",header=T)
 
@@ -78,7 +78,7 @@ refSubset$add<-c(0,cumsum(refSubset$length)[-length(refSubset$scaff)])
 # Get additive positions
 frq$pos_add<-frq$POS+refSubset[match(as.character(frq$CHROM),as.character(refSubset$scaff)),"add"]
 
-# Plot allele frequencies for Fig. S11
+# Plot allele frequencies for Fig. S10
 png(file="D:/Dropbox/victoriaGenomes/ecologicalGroups/piscivore-associated-SNPs.png",
      width=31,height = 19, units = 'cm', res = 300)
 par(mfrow=c(5,1),oma=c(5,0,4,0),mar=c(0,5,1,0),xaxs="i")
@@ -166,7 +166,7 @@ mtext(1,text = "Chromosome position [Mb]",line=4)
 dev.off()
 
 
-### Fig. S12: Paedophages ####
+### Fig. S11: Paedophages ####
 
 frq<-read.table("D:/Dropbox/victoriaGenomes/ecologicalGroups/LV.paedophage.chr1-22.0.9diff.sites",header=T)
 
@@ -327,7 +327,7 @@ par(mar=c(0,4,1,0),mfrow=c(4,1),oma=c(6,3,10,1),xaxs="i")
 dev.off()
 
 
-### Fig. S13: Neochromis ####
+### Fig. S12: Neochromis ####
 frq<-read.table("D:/Dropbox/victoriaGenomes/ecologicalGroups/LV.Neo_epilithic_algae_scraper.chr1-22.0.9diff.sites",header=T)
 
 # difference between Neochromis and others in Albert/Kivu
