@@ -22,7 +22,7 @@ reformatLV<-function(f4){
 
 f4lv<-reformatLV(f4lv)
 
-#### Fig. 4B: Plot of f4 values   ####################################################################
+#### Fig. 5B: Plot of f4 values   ####################################################################
 
 
 # Plot f4 full dataset
