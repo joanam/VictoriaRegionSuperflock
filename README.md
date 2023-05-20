@@ -106,7 +106,7 @@ Requires these scripts:
 
 * [BashPipelines/FigS6_vcf2fineSTR.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS6_vcf2fineSTR.lsf)
 * [BashPipelines/FigS6_runBeagle.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/FigS6_runBeagle.lsf)
-* [RScripts/FigS6_addRecombRates.r](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS6_addRecombRates.R)
+* [RScripts/FigS6_addRecombRates.r](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS6_addRecombRates.r)
 
 
 ## Additional files:
