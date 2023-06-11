@@ -82,8 +82,10 @@ which requires
 [BashPipelines/Fig5_FigS10-S12_getDiffSites.lsf](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/BashPipelines/Fig5_FigS10-S12_getDiffSites.lsf)
 
 * Plot them:
-[RScripts/FigS10-S12_alleleFrequencies_ecogroups.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS10-S12_alleleFrequencies_ecogroups.R)
+[Rscripts/Fig5_ancestry_proportions.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/Fig5_ancestry_proportions.R)
+Note, the data is found in [Data/Fig5_ancestry_proportions.csv](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Data/Fig5_ancestry_proportions.csv)
 
+[RScripts/FigS10-S12_alleleFrequencies_ecogroups.R](https://github.com/joanam/VictoriaRegionSuperflock/blob/main/Rscripts/FigS10-S12_alleleFrequencies_ecogroups.R)
 
 
 ### DXY between allopatric and sympatric piscivores and paedophages
