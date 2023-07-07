@@ -16,7 +16,7 @@ library("Rcpp")
 library("dplyr")
 
 # Read in sample information
-sampleInfo<-as.data.frame(read_excel("D:/Dropbox/CichlidGenomesProject/planning/Cichlids_Sequenced_New.xlsx"))
+sampleInfo<-as.data.frame(read_excel("D:/Dropbox/victoriaGenomes/Cichlids_Sequenced_New.xlsx"))
 groups<-read.table("D:/Dropbox/victoriaGenomes/phylogenetics/lakes.tree.groups.ecology.ind",header=F)
 names(groups)<-c("sample","U","group")
 
@@ -408,7 +408,7 @@ p<-ggtree(g2,layout="circular",size=0.2,aes(col=factor(color))) %<+% sortedSampl
     values=levels(factor(sortedSampleInfo$SpeciesCol)),
     na.value = NA,
     labels = levels(factor(sortedSampleInfo$Species)),guide="none") +
-  geom_nodepoint(size=ifelse(tree$node.label==100,0.5,ifelse(tree$node.label>80,0.25,0)), 
+  geom_nodepoint(size=ifelse(as.integer(tree$node.label)==100,0.5,ifelse(as.integer(tree$node.label)>80,0.25,NA)), 
                  color="black", alpha=1) + 
   new_scale_fill() +
   new_scale_color() +
@@ -459,7 +459,7 @@ p<-ggtree(g2,layout="circular",size=0.2,aes(col=factor(color))) %<+% sortedSampl
     values=levels(factor(sortedSampleInfo$SpeciesCol)),
     na.value = NA,
     labels = levels(factor(sortedSampleInfo$Species)),guide="none") +
-  geom_nodepoint(size=ifelse(tree$node.label==100,0.5,ifelse(tree$node.label>80,0.25,0)), 
+  geom_nodepoint(size=ifelse(tree$node.label==100,0.5,ifelse(tree$node.label>80,0.25,NA)), 
                  color="black", alpha=1) + 
   new_scale_fill() +
   geom_fruit(geom=geom_tile,width=0.005,
